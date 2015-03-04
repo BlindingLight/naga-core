@@ -1,0 +1,20 @@
+{
+    "name": "naga/framework",
+    "description": "Naga framework.",
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "BlindingLight",
+            "email": "bloodredshade@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": {
+            "Naga": "/core"
+        }
+    }
+}
