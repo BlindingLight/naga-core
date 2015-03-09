@@ -2,31 +2,49 @@
 
 namespace Naga\Core\Email;
 
+use Naga\Core\Exception\ConfigException;
 use Naga\Core\nComponent;
 
 class SwiftMailConnection extends nComponent implements iEmailConnection
 {
-	private $_connection;
-	private $_sender = array();
+	protected $_connection;
+	protected $_sender = array();
+	protected $_config;
 
 	public function __construct($config)
 	{
-		if ($config->smtpAuthType == 'ssl' || $config->smtpAuthType == 'tls')
+		if (!is_object($config))
+			throw new ConfigException('SwiftMailerConnection got invalid configuration.');
+
+		$this->_config = clone $config;
+		$this->_sender = array($config->senderEmail => $config->senderName);
+	}
+
+	protected function createSwiftMailerInstance()
+	{
+		if ($this->_connection)
+			return;
+
+		if ($this->_config->smtpAuthType == 'ssl' || $this->_config->smtpAuthType == 'tls')
 		{
-			$transport = \Swift_SmtpTransport::newInstance($config->smtpHost, $config->smtpPort, $config->smtpAuthType)
-						->setUsername($config->smtpUser)->setPassword($config->smtpPassword);
+			$transport = \Swift_SmtpTransport::newInstance(
+				$this->_config->smtpHost,
+				$this->_config->smtpPort,
+				$this->_config->smtpAuthType
+			)->setUsername($this->_config->smtpUser)->setPassword($this->_config->smtpPassword);
 		}
 		else
 		{
-			$transport = \Swift_SmtpTransport::newInstance($config->smtpHost, $config->smtpPort);
+			$transport = \Swift_SmtpTransport::newInstance($this->_config->smtpHost, $this->_config->smtpPort);
 		}
 
 		$this->_connection = \Swift_Mailer::newInstance($transport);
-		$this->_sender = array($config->senderEmail => $config->senderName);
 	}
 
 	public function sendPlain(array $recipients, $subject, $message, $attachments = array(), $bcc = array())
 	{
+		$this->createSwiftMailerInstance();
+
 		$msg = \Swift_Message::newInstance();
 		$msg->setSubject($subject);
 		$msg->setFrom($this->_sender);
@@ -47,6 +65,8 @@ class SwiftMailConnection extends nComponent implements iEmailConnection
 
 	public function sendHtml(array $recipients, $subject, $message, $altBody = '', $attachments = array(), $bcc = array())
 	{
+		$this->createSwiftMailerInstance();
+
 		$msg = \Swift_Message::newInstance();
 		$msg->setSubject($subject);
 		$msg->setFrom($this->_sender);

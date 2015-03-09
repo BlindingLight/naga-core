@@ -39,10 +39,13 @@ class JsConsoleLogger extends nComponent implements iLogger
 	 */
 	public function generate()
 	{
-		$generated = '<script type="text/javascript">';
+		if (!count($this->_messages))
+			return $this;
+
 		ksort($this->_messages);
 
 		$previousGroupName = $this->_name;
+		$generated = '';
 		foreach ($this->_messages as $group => $messages)
 		{
 			if (!count($messages))
@@ -50,10 +53,8 @@ class JsConsoleLogger extends nComponent implements iLogger
 
 			$groupName = $group;
 			if (strpos($group, $previousGroupName . '.') === 0)
-			{
 				$groupName = str_replace($previousGroupName . '.', '', $group);
-			}
-			else
+			else if ($generated)
 				$generated .= 'console.groupEnd();';
 
 			$generated .= "console.groupCollapsed('{$groupName}');";
@@ -61,11 +62,16 @@ class JsConsoleLogger extends nComponent implements iLogger
 			foreach ($messages as $message)
 			{
 				$func = $this->getJsSeverityFunctionName($message->severity);
+				$color = $this->getJsSeverityColor($message->severity);
 				$message->message = str_replace("\n", '\n', $message->message);
-				$generated .= "console.{$func}('{$message->message}');";
+				$generated .= "console.{$func}('%c{$message->message}', 'color: #{$color}');";
 			}
+
+			$generated .= 'console.groupEnd();';
 		}
-		$generated .= 'console.groupEnd();</script>';
+
+		if ($generated)
+			$generated = '<script type="text/javascript">' . $generated . '</script>';
 
 		return $generated;
 	}
@@ -98,6 +104,37 @@ class JsConsoleLogger extends nComponent implements iLogger
 				return 'info';
 			default:
 				return 'log';
+		}
+	}
+
+	/**
+	 * Gets javascript console color of specified severity.
+	 *
+	 * @param int $severity
+	 * @return string
+	 */
+	protected function getJsSeverityColor($severity)
+	{
+		switch ($severity)
+		{
+			case iLogger::Info:
+				return '607D8B';
+			case iLogger::Error:
+				return 'C62828';
+			case iLogger::Alert:
+				return 'E91E63';
+			case iLogger::Critical:
+				return 'B71C1C';
+			case iLogger::Emergency:
+				return '880E4F';
+			case iLogger::Warning:
+				return 'FB8C00';
+			case iLogger::Debug:
+				return '03A9F4';
+			case iLogger::Notice:
+				return '78909C';
+			default:
+				return '607D8B';
 		}
 	}
 

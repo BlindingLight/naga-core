@@ -3,6 +3,7 @@
 namespace Naga\Core\View;
 
 use Naga\Core\Response\HtmlResponse;
+use Naga\Core\Response\iResponse;
 use Naga\Core\Response\JsonResponse;
 use Naga\Core\Response\Response;
 use Naga\Core\Response\XmlResponse;
@@ -66,6 +67,46 @@ class View extends nComponent
 	}
 
 	/**
+	 * Creates a new instance with HtmlResponse.
+	 *
+	 * @return static
+	 */
+	public static function htmlView()
+	{
+		return new static(static::HtmlResponse);
+	}
+
+	/**
+	 * Creates a new instance with HtmlResponse and TwigTemplate.
+	 *
+	 * @return static
+	 */
+	public static function htmlTwigView()
+	{
+		return new static(static::HtmlResponse, new TwigTemplate());
+	}
+
+	/**
+	 * Creates a new instance with JsonResponse.
+	 *
+	 * @return static
+	 */
+	public static function jsonView()
+	{
+		return new static(static::JsonResponse);
+	}
+
+	/**
+	 * Creates a new instance with JsonResponse and TwigTemplate.
+	 *
+	 * @return static
+	 */
+	public static function jsonTwigView()
+	{
+		return new static(static::JsonResponse, new TwigTemplate());
+	}
+
+	/**
 	 * Executes view.
 	 *
 	 * @param string|null $templatePath override template path
@@ -93,7 +134,7 @@ class View extends nComponent
 	/**
 	 * Gets the app's resonse object.
 	 *
-	 * @return \Naga\Core\Response\Response
+	 * @return \Naga\Core\Response\Response|\Naga\Core\Response\HtmlResponse|\Naga\Core\Response\JsonResponse
 	 */
 	public function response()
 	{

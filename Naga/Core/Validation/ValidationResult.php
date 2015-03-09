@@ -20,8 +20,8 @@ class ValidationResult extends nComponent
 	}
 
 	/**
-	 * Gets if a data with key $dataKey is valid. If no $dataKey specified, checks all data, and if any of them is invalid,
-	 * return false.
+	 * Gets if data with key $dataKey is valid. If no $dataKey specified, checks all data, and if any of them is invalid,
+	 * returns false.
 	 *
 	 * @param null|string $dataKey
 	 * @return bool
@@ -126,8 +126,8 @@ class ValidationResult extends nComponent
 	}
 
 	/**
-	 * Gets errors for data with key $dataKey. If no $dataKey specified, gets all errors. The returned array not only
-	 * contains errors, but data assigned in rule callbacks too.
+	 * Gets errors for data with key $dataKey. If no $dataKey specified, gets all errors. The returned array doesn't only
+	 * contain errors, but data assigned in rule callbacks too.
 	 *
 	 * Return format if $dataKey is specified:
 	 * array(

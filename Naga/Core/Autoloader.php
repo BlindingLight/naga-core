@@ -95,10 +95,10 @@ class Autoloader extends nComponent
 	 */
 	public function autoload($className)
 	{
-		$filePath = strpos($className, 'Naga') !== false
-			? $this->getInternalFileName($className)
-			: $this->getExternalFileName($className);
+		if (strpos($className, 'Naga') !== false)
+			return;
 
+		$filePath = $this->getExternalFileName($className);
 		$filePath = $this->_rootDirectory . ($filePath ? $filePath : $this->getPackageFileName($className));
 		$filePath = str_replace('\\', '/', $filePath);
 		if (!file_exists($filePath))
@@ -112,6 +112,7 @@ class Autoloader extends nComponent
 	 *
 	 * @param $className
 	 * @return string
+	 * @deprecated
 	 */
 	protected function getInternalFileName($className)
 	{

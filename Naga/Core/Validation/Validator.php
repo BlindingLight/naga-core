@@ -5,7 +5,7 @@ namespace Naga\Core\Validation;
 use Naga\Core\nComponent;
 
 /**
- * Class for validating content. Thanks to Laravel team for inspiration.
+ * Class for validating content. Thanks to Laravel team ( http://laravel.com ) for inspiration.
  *
  * @author BlindingLight<bloodredshade@gmail.com>
  * @package Naga\Core\Validation
@@ -412,7 +412,16 @@ class Validator extends nComponent
 			':displayableName must be a valid date and time.'
 		);
 
-		// TODO: different:field ($data must be different than :field)
+		// different ($data != $fieldName field value)
+		$this->addRule('different',
+			function($data, &$errors, $fieldName)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldData'] = isset($this->_data[$fieldName]) ? $this->_data[$fieldName] : null;
+
+				return !isset($this->_data[$fieldName]) || $data != $this->_data[$fieldName];
+			}
+		);
 
 		// digits:value ($data must have :value digits)
 		$this->addRule('digits',
@@ -493,8 +502,6 @@ class Validator extends nComponent
 			':displayableName is not a property key in json object: :object.'
 		);
 
-		// TODO: inTable (I think we need to pass other type of parameters too rather than just strings)
-
 		// int ($data must be an int type variable)
 		$this->addRule('int',
 			function($data, &$errors)
@@ -530,7 +537,16 @@ class Validator extends nComponent
 			':displayableName must be between :min - :max characters long, it has :length characters.'
 		);
 
-		// TODO: matches ($data matches an other field value)
+		// matches ($data matches an other field value)
+		$this->addRule('matches',
+			function($data, &$errors, $fieldName)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldData'] = isset($this->_data[$fieldName]) ? $this->_data[$fieldName] : null;
+
+				return isset($this->_data[$fieldName]) && $data == $this->_data[$fieldName];
+			}
+		);
 
 		// max:value ($data must be less than :value, it uses (float) cast on types other than float/double, use size on arrays, length on strings)
 		$this->addRule('max',
@@ -637,11 +653,147 @@ class Validator extends nComponent
 			':displayableName is required.'
 		);
 
-		// TODO: requiredIf:field:value ($data is required if :field is equal to :value)
-		// TODO: requiredWith:field1,field2,... ($data is required if all of the specified fields are present)
-		// TODO: requiredWithout:field1,field2,... ($data is required if any of the specified fields are present)
-		// TODO: requiredWithoutAll:field1,field2,... ($data is required if none of the specified fields are present)
-		// TODO: same:field ($data is equal to :field field value)
+		// requiredIf:field:value ($data is required if :field is equal to :value)
+		$this->addRule('requiredIf',
+			function($data, &$errors, $fieldName, $matchValue)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldData'] = isset($this->_data[$fieldName]) ? $this->_data[$fieldName] : null;
+				$errors[':matchValue'] = $matchValue;
+
+				if (!isset($this->_data[$fieldName]) || $this->_data[$fieldName] != $matchValue)
+					return true;
+
+				return !empty($data);
+			}
+		);
+
+		// requiredWith:field1:field2,... ($data is required if any of the specified fields are present
+		// and have value)
+		$this->addRule('requiredWith',
+			function($data, &$errors)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldsExist'] = array();
+
+				$args = func_get_args();
+				$required = false;
+				foreach ($args as $idx => $arg)
+				{
+					if ($idx <= 1)
+						continue;
+
+					$exists = isset($this->_data[$arg]);
+					if (is_string($this->_data[$arg]) && $this->_data[$arg] == '')
+						$exists = false;
+
+					$errors[':fieldsExist'][$arg] = $exists;
+
+					if (!$required && $exists)
+						$required = true;
+				}
+
+				return $required;
+			}
+		);
+
+		// requiredWithAll:field1:field2:... ($data is required if all of the specified fields are present
+		// and have value)
+		$this->addRule('requiredWithAll',
+			function($data, &$errors)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldsExist'] = array();
+
+				$args = func_get_args();
+				$required = true;
+				foreach ($args as $idx => $arg)
+				{
+					if ($idx <= 1)
+						continue;
+
+					$exists = isset($this->_data[$arg]);
+					if (is_string($this->_data[$arg]) && $this->_data[$arg] == '')
+						$exists = false;
+
+					$errors[':fieldsExist'][$arg] = $exists;
+
+					if ($required && !$exists)
+						$required = false;
+				}
+
+				return $required;
+			}
+		);
+
+		// requiredWithout:field1:field2:... ($data is required if any of the specified fields are not present
+		// or doesn't have a value)
+		$this->addRule('requiredWithout',
+			function($data, &$errors)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldsExist'] = array();
+
+				$args = func_get_args();
+				$required = false;
+				foreach ($args as $idx => $arg)
+				{
+					if ($idx <= 1)
+						continue;
+
+					$exists = isset($this->_data[$arg]);
+					if (is_string($this->_data[$arg]) && $this->_data[$arg] == '')
+						$exists = false;
+
+					$errors[':fieldsExist'][$arg] = $exists;
+
+					if (!$required && !$exists)
+						$required = true;
+				}
+
+				return $required;
+			}
+		);
+
+		// requiredWithoutAll:field1:field2:... ($data is required if none of the specified fields are present
+		// and they don't have values)
+		$this->addRule('requiredWithoutAll',
+			function($data, &$errors)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldsExist'] = array();
+
+				$args = func_get_args();
+				$required = true;
+				foreach ($args as $idx => $arg)
+				{
+					if ($idx <= 1)
+						continue;
+
+					$exists = isset($this->_data[$arg]);
+					if (is_string($this->_data[$arg]) && $this->_data[$arg] == '')
+						$exists = false;
+
+					$errors[':fieldsExist'][$arg] = $exists;
+
+					if ($required && $exists)
+						$required = false;
+				}
+
+				return $required;
+			}
+		);
+
+		// same:field ($data is equal to :field field value)
+		$this->addRule('same',
+			function($data, &$errors, $fieldName)
+			{
+				$errors[':data'] = $data;
+				$errors[':fieldData'] = isset($this->_data[$fieldName]) ? $this->_data[$fieldName] : null;
+
+				return isset($this->_data[$fieldName]) && $this->_data[$fieldName] == $data;
+			}
+		);
 
 		// size:min:max ($data size is between :min and :max, usable for arrays. If :max = 0, $data size must be exactly :min)
 		$this->addRule('size',

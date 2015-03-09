@@ -147,7 +147,25 @@ abstract class Application extends nComponent
 				throw new Exception\Component\NotCallableException("Component $name (" . gettype($component) . ") is not callable or not an instance of nComponent.");
 		}
 
-		throw new \RuntimeException("Can't get application instance.");
+		throw new \RuntimeException("Can't get Application instance.");
+	}
+
+	/**
+	 * Gets Validator instance.
+	 *
+	 * @return \Naga\Core\Validation\Validator
+	 * @throws \Exception
+	 */
+	public static function validator()
+	{
+		try
+		{
+			return self::instance()->component('validator');
+		}
+		catch (\Exception $e)
+		{
+			throw new \Exception("Can't get Validator instance.");
+		}
 	}
 
 	/**

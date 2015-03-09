@@ -38,7 +38,7 @@ class Rule extends nComponent
 	public function __call($method, $args)
 	{
 		$method = '_callback';
-		return call_user_func_array($this->$method, $args);
+		return call_user_func_array($this->{$method}, $args);
 	}
 
 	/**
