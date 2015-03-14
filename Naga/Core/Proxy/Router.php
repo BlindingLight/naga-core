@@ -1,13 +1,13 @@
 <?php
 
-namespace Naga\Core\Facade;
+namespace Naga\Core\Proxy;
 
 use Naga\Core\Exception;
 
-class Router extends Facade
+class Router extends Proxy
 {
 	/**
-	 * @see Facade
+	 * @see Proxy
 	 */
 	protected static $_accessor = 'router';
 
@@ -48,6 +48,14 @@ class Router extends Facade
 	 */
 	public static function addRoutes(array $routes)
 	{
-		return static::component()->addRoutes($routes);
+		static::component()->addRoutes($routes);
+	}
+
+	/**
+	 * @return \Naga\Core\Routing\Router
+	 */
+	protected static function component()
+	{
+		return parent::component();
 	}
 }

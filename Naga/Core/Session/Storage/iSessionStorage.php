@@ -49,6 +49,14 @@ interface iSessionStorage
 	function toArray();
 
 	/**
+	 * Starts the session.
+	 *
+	 * @param mixed $sessionId
+	 * @return bool
+	 */
+	function start($sessionId = null);
+
+	/**
 	 * Ends the session.
 	 *
 	 * @return bool

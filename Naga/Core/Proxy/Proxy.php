@@ -1,13 +1,13 @@
 <?php
 
-namespace Naga\Core\Facade;
+namespace Naga\Core\Proxy;
 
 use Naga\Core\nComponent;
 
-abstract class Facade
+abstract class Proxy
 {
 	/**
-	 * @var \Naga\Core\nComponent|\Naga\Core\Application nComponent instance being facaded
+	 * @var \Naga\Core\nComponent|\Naga\Core\Application nComponent container instance
 	 */
 	protected static $_container;
 
@@ -17,7 +17,7 @@ abstract class Facade
 	protected static $_accessor;
 
 	/**
-	 * Sets the container that being facaded.
+	 * Sets the container we get component(s) from.
 	 *
 	 * @param nComponent $container
 	 */

@@ -17,7 +17,6 @@ class Native extends nComponent implements iSessionStorage
 	 */
 	public function __construct()
 	{
-		session_start();
 	}
 
 	/**
@@ -80,6 +79,20 @@ class Native extends nComponent implements iSessionStorage
 	public function toArray()
 	{
 		return $_SESSION;
+	}
+
+	/**
+	 * Starts the session.
+	 *
+	 * @param mixed $sessionId
+	 * @return bool
+	 */
+	public function start($sessionId = null)
+	{
+		if ($sessionId)
+			session_id($sessionId);
+
+		return session_start();
 	}
 
 	/**

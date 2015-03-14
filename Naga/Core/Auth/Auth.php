@@ -2,7 +2,7 @@
 
 namespace Naga\Core\Auth;
 
-use Naga\Core\Facade\Events;
+use Naga\Core\Proxy\Events;
 use Naga\Core\Exception;
 use Naga\Core\Exception\Auth\DataCorruptedException;
 use Naga\Core\Session\Storage\iSessionStorage;

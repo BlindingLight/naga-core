@@ -1,8 +1,8 @@
 <?php
 
-namespace Naga\Core\Facade;
+namespace Naga\Core\Proxy;
 
-class Events extends Facade
+class Events extends Proxy
 {
 	/**
 	 * @see Facade

@@ -140,6 +140,11 @@ class Profiler extends nComponent implements iProfiler
 		foreach ($this->_timers as $timer)
 			$results[$timer->name()] = $timer->result($measure, $roundPrecision);
 
+		// sorting results desc
+		uasort($results, function($a, $b) {
+			return (float)str_replace(array('ms', 's'), '', $a) < (float)str_replace(array('ms', 's'), '', $b);
+		});
+
 		return $results;
 	}
 

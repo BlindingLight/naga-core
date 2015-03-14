@@ -65,6 +65,17 @@ class SessionManager extends nComponent
 	}
 
 	/**
+	 * Starts the session.
+	 *
+	 * @param mixed $sessionId
+	 * @return bool
+	 */
+	public function start($sessionId = null)
+	{
+		return $this->storage()->start($sessionId);
+	}
+
+	/**
 	 * Ends the session.
 	 *
 	 * @return bool

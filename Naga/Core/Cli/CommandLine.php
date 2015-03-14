@@ -25,6 +25,7 @@ class CommandLine extends nComponent
 		{
 			try
 			{
+				$command->setCommandLineObject($this);
 				$this->registerCommand($command);
 			}
 			catch (\Exception $e)
@@ -112,12 +113,12 @@ class CommandLine extends nComponent
 		if (!$this->config()->getBool('severityPrefixesEnabled'))
 			return '';
 
-		$severityPrefixes = &$this->config()->getArray('severityPrefixes');
+		$severityPrefixes = $this->config()->getArray('severityPrefixes');
 
 		$prefix = isset($severityPrefixes[$severity]) ? $severityPrefixes[$severity] : '';
 		if ($this->config()->getBool('colorsEnabled'))
 		{
-			$colors = &$this->config()->getArray('severityPrefixColors');
+			$colors = $this->config()->getArray('severityPrefixColors');
 			$color = isset($colors[$severity]) ? $colors[$severity] : iLogger::White;
 
 			$prefix = "\033[{$color}m{$prefix}\033[0m";
@@ -131,19 +132,55 @@ class CommandLine extends nComponent
 
 	}
 
-	public function executeCommand($name)
+	public function executeCommand($name, $args = array())
 	{
+		$command = isset($this->_commands[$name]) ? $this->_commands[$name] : null;
+		if (!$command)
+		{
+			$command = isset($this->_aliases[$name]) && isset($this->_commands[$this->_aliases[$name]])
+				? $this->_commands[$this->_aliases[$name]]
+				: null;
+		}
 
+		if (!$command)
+		{
+			$this->error("Command with name {$name} not found.");
+			return false;
+		}
+
+		return $command->execute($args);
 	}
 
+	/**
+	 * Registers a command.
+	 *
+	 * @param iCommand $command
+	 */
 	public function registerCommand(iCommand $command)
 	{
+		// registering commands
+		$this->_commands[$command->name()] = $command;
 
+		// registering aliases
+		foreach ($command->aliases() as $name)
+		{
+			// we won't register an alias if there is a command with that name
+			if (isset($this->_commands[$name]))
+				continue;
+
+			$this->_aliases[$name] = $command->name();
+		}
 	}
 
-	public function removeCommand()
+	/**
+	 * Removes a command.
+	 *
+	 * @param string $commandName
+	 */
+	public function removeCommand($commandName)
 	{
-
+		if (isset($this->_commands[$commandName]))
+			unset($this->_commands[$commandName]);
 	}
 
 	/**
