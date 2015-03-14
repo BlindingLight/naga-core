@@ -110,15 +110,16 @@ class View extends nComponent
 	 * Executes view.
 	 *
 	 * @param string|null $templatePath override template path
+	 * @param bool $exitAfter exit after data sent
 	 */
-	public function execute($templatePath = null)
+	public function execute($templatePath = null, $exitAfter = false)
 	{
 		if ($this->template() && $this->_response instanceof HtmlResponse)
 			$this->_response->setContent($this->template()->generate($templatePath));
 		else if ($this->template() && $this->_response instanceof JsonResponse)
 			$this->_response->add('content', $this->template()->generate($templatePath));
 
-		$this->_response->send(true);
+		$this->_response->send();
 	}
 
 	/**
