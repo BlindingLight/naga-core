@@ -490,7 +490,7 @@ abstract class Application extends nComponent
 	 */
 	public function redirect($url = '/', $statusCode = 302)
 	{
-		static::redirectTo($url, $statusCode, $this);
+		static::redirectTo($url, $statusCode, $this->instanceName());
 	}
 
 	/**
