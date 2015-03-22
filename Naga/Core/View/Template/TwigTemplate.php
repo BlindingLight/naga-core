@@ -202,7 +202,6 @@ class TwigTemplate extends nComponent implements iTemplate
 				 . ($profile->getPeakMemoryUsage() / 1024 / 1024) . 'MB';
 
 			$this->logger()->debug(str_replace(array("\n", '%'), array('', '%%'), $logText));
-			$this->logger()->dispatch();
 
 			return $content;
 		}
