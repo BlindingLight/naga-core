@@ -26,9 +26,9 @@ class TwigTemplate extends nComponent implements iTemplate
 	private $_twig;
 
 	/**
-	 * @var \Twig_Profiler_Profile
+	 * @var bool debug mode
 	 */
-	private $_twigProfile;
+	private $_debug = false;
 
 	/**
 	 * @var string template path
@@ -77,12 +77,8 @@ class TwigTemplate extends nComponent implements iTemplate
 			)
 		);
 
-		// Twig profiling if application.debug is true
-		if ($config->get('debug'))
-		{
-			$this->_twigProfile = new \Twig_Profiler_Profile();
-			$this->_twig->addExtension(new \Twig_Extension_Profiler($this->_twigProfile));
-		}
+		// setting debug mode
+		$this->_debug = $config->get('debug');
 
 		// registering localize filter
 		$localization = $app->localization();
@@ -188,16 +184,30 @@ class TwigTemplate extends nComponent implements iTemplate
 		if (!$this->_templatePath && !$templatePath)
 			throw new ConfigException('Missing template path for view: ' . __CLASS__);
 
-		$rendered = $this->_twig->render($templatePath ? $templatePath : $this->_templatePath, $this->_data);
-
-		if ($this->_twigProfile instanceof \Twig_Profiler_Profile)
+		if ($this->_debug)
 		{
+			$profile = new \Twig_Profiler_Profile(
+				$templatePath ? $templatePath : $this->_templatePath,
+				\Twig_Profiler_Profile::ROOT,
+				$templatePath ? $templatePath : $this->_templatePath
+			);
+			$this->_twig->addExtension(new \Twig_Extension_Profiler($profile));
+			$profile->enter();
+			$content = $this->_twig->render($templatePath ? $templatePath : $this->_templatePath, $this->_data);
+			$profile->leave();
 			$dumper = new \Twig_Profiler_Dumper_Text();
-			$this->logger()->debug($dumper->dump($this->_twigProfile));
+
+			$logText = $dumper->dump($profile) . ', memory usage: '
+				 . ($profile->getMemoryUsage() / 1024 / 1024) . 'MB, peak:'
+				 . ($profile->getPeakMemoryUsage() / 1024 / 1024) . 'MB';
+
+			$this->logger()->debug(str_replace(array("\n", '%'), array('', '%%'), $logText));
 			$this->logger()->dispatch();
+
+			return $content;
 		}
 
-		return $rendered;
+		return $this->_twig->render($templatePath ? $templatePath : $this->_templatePath, $this->_data);
 	}
 
 	/**
