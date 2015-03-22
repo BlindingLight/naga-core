@@ -192,7 +192,7 @@ class TwigTemplate extends nComponent implements iTemplate
 
 		if ($this->_twigProfile instanceof \Twig_Profiler_Profile)
 		{
-			$dumper = new Twig_Profiler_Dumper_Text();
+			$dumper = new \Twig_Profiler_Dumper_Text();
 			$this->logger()->debug($dumper->dump($this->_twigProfile));
 			$this->logger()->dispatch();
 		}
