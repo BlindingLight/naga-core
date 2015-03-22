@@ -26,6 +26,11 @@ class TwigTemplate extends nComponent implements iTemplate
 	private $_twig;
 
 	/**
+	 * @var \Twig_Profiler_Profile
+	 */
+	private $_twigProfile;
+
+	/**
 	 * @var string template path
 	 */
 	private $_templatePath = '';
@@ -68,15 +73,32 @@ class TwigTemplate extends nComponent implements iTemplate
 			$loader,
 			array(
 				'cache' => $config->get('templates')->compiled,
-				'auto_reload' => true
+				'debug' => $config->get('debug')
 			)
 		);
+
+		// Twig profiling if application.debug is true
+		if ($config->get('debug'))
+		{
+			$this->_twigProfile = new \Twig_Profiler_Profile();
+			$this->_twig->addExtension(new \Twig_Extension_Profiler($this->_twigProfile));
+		}
 
 		// registering localize filter
 		$localization = $app->localization();
 		$this->_twig->addFilter(
 			new \Twig_SimpleFilter(
 				'localize',
+				function($constant) use(&$localization)
+				{
+					return $localization->get($constant);
+				}
+			)
+		);
+
+		$this->_twig->addFilter(
+			new \Twig_SimpleFilter(
+				'l',
 				function($constant) use(&$localization)
 				{
 					return $localization->get($constant);
@@ -166,7 +188,16 @@ class TwigTemplate extends nComponent implements iTemplate
 		if (!$this->_templatePath && !$templatePath)
 			throw new ConfigException('Missing template path for view: ' . __CLASS__);
 
-		return $this->_twig->render($templatePath ? $templatePath : $this->_templatePath, $this->_data);
+		$rendered = $this->_twig->render($templatePath ? $templatePath : $this->_templatePath, $this->_data);
+
+		if ($this->_twigProfile instanceof \Twig_Profiler_Profile)
+		{
+			$dumper = new Twig_Profiler_Dumper_Text();
+			$this->logger()->debug($dumper->dump($this->_twigProfile));
+			$this->logger()->dispatch();
+		}
+
+		return $rendered;
 	}
 
 	/**
