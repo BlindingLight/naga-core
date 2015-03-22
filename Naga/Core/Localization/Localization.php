@@ -46,7 +46,9 @@ class Localization extends nComponent
 	 */
 	public function get($name, $default = null)
 	{
-		return $this->currentLanguage()->get($name, $default);
+		$translated = $this->currentLanguage()->get($name, $default);
+		if (is_null($translated))
+			return $this->language($this->_defaultLanguageId)->get($name, $default);
 	}
 
 	/**
