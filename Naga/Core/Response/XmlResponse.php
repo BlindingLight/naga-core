@@ -12,10 +12,11 @@ class XmlResponse extends Response
 	 * @var string xml encoding
 	 */
 	private $_xmlEncoding;
+
 	/**
-	 * @var \DOMDocument DOMDocument instance for xml creation
+	 * @var
 	 */
-	private $_dom;
+	protected $_rootObject;
 
 	/**
 	 * XmlResponse construct. Use it as a Map construct, also you can specify xml version and encoding.
@@ -35,7 +36,77 @@ class XmlResponse extends Response
 
 	public function generateXml()
 	{
+		// creating root node
+		if (is_object($this->_rootObject))
+		{
+			$xml = new \SimpleXMLElement(
+				'<?xml version="' . $this->xmlVersion() . '" encoding="' . $this->xmlEncoding() . '" ?>'
+				. "<{$this->_rootObject->name}>"
+				. (isset($this->_rootObject->value) ? $this->_rootObject->value : '')
+				. "</{$this->_rootObject->name}>"
+			);
 
+			// adding attributes to root node
+			if (isset($this->_rootObject->attributes) && is_array($this->_rootObject->attributes))
+			{
+				foreach ($this->_rootObject->attributes as $name => $value)
+					$xml->addAttribute($name, $value);
+			}
+		}
+		else
+		{
+			$xml = new \SimpleXMLElement(
+				'<?xml version="' . $this->xmlVersion() . '" encoding="' . $this->xmlEncoding() . '" ?><root/>'
+			);
+		}
+
+		// iterating through data
+		foreach ($this->toArray() as $elementName => $element)
+			$this->addElements($xml, $elementName, $element);
+
+		return $xml->asXML();
+	}
+
+	/**
+	 * Sets XML's root node.
+	 *
+	 * @param object $rootObject
+	 * @throws \Exception
+	 */
+	public function setRootNode($rootObject)
+	{
+		if (!is_object($rootObject))
+			throw new \Exception('XmlResponse: Can\'t set root object, object expected, got ' . gettype($rootObject));
+
+		if (!isset($rootObject->name))
+			throw new \Exception('XmlResponse: Invalid root object passed, name property doesn\'t exist.');
+
+		$this->_rootObject = clone $rootObject;
+	}
+
+	protected function addElements(\SimpleXMLElement $xml, $name, $elements)
+	{
+		// data is not an object nor an array so we add it as a simple node
+		if (!is_object($elements) && !is_array($elements))
+			$xml->addChild($name, $elements);
+		// if $element is an object we get its attributes from
+		// 'attributes' property and data from 'data' property
+		// also we add children from 'children' property
+		else if (is_object($elements))
+		{
+			$xml = $xml->addChild($name);
+			// adding attributes
+			foreach ($elements->attributes as $name => $value)
+				$xml->addAttribute($name, $value);
+			// adding children
+			foreach ($elements->children as $name => $element)
+				$this->addElements($xml, $name, $element);
+		}
+		else if (is_array($elements))
+		{
+			foreach ($elements as $name => $element)
+				$this->addElements($xml, $name, $element);
+		}
 	}
 
 	public function xmlVersion()
@@ -76,8 +147,7 @@ class XmlResponse extends Response
 	public function send($exitAfter = false)
 	{
 		header('Content-type: ' . $this->mimeType());
-		//echo \Naga\Core\Util\Xml::encode($this->data());
-		// TODO: xml output
+		echo $this->generateXml();
 		if ($exitAfter)
 			exit();
 	}
