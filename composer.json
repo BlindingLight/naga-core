@@ -1,7 +1,7 @@
 {
     "name": "naga/framework",
     "description": "Naga framework.",
-    "version": "2.0.16",
+    "version": "2.0.17",
     "require": {
         "php": ">=5.4.0"
     },
