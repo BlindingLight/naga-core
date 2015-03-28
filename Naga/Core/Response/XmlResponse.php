@@ -34,6 +34,11 @@ class XmlResponse extends Response
 		$this->setMimeType('text/xml');
 	}
 
+	/**
+	 * Generates XML.
+	 *
+	 * @return string
+	 */
 	public function generateXml()
 	{
 		// creating root node
@@ -84,6 +89,13 @@ class XmlResponse extends Response
 		$this->_rootObject = clone $rootObject;
 	}
 
+	/**
+	 * Adds elements to XML DOM.
+	 *
+	 * @param \SimpleXMLElement $xml
+	 * @param string $name
+	 * @param string|object|array $elements
+	 */
 	protected function addElements(\SimpleXMLElement $xml, $name, $elements)
 	{
 		// data is not an object nor an array so we add it as a simple node
@@ -109,21 +121,41 @@ class XmlResponse extends Response
 		}
 	}
 
+	/**
+	 * Gets XML version.
+	 *
+	 * @return string
+	 */
 	public function xmlVersion()
 	{
 		return $this->_xmlVersion;
 	}
 
+	/**
+	 * Sets XML version.
+	 *
+	 * @param string $version
+	 */
 	public function setXmlVersion($version)
 	{
 		$this->_xmlVersion = $version;
 	}
 
+	/**
+	 * Gets XML encoding.
+	 *
+	 * @return string
+	 */
 	public function xmlEncoding()
 	{
 		return $this->_xmlEncoding;
 	}
 
+	/**
+	 * Sets XML encoding.
+	 *
+	 * @param string $encoding
+	 */
 	public function setXmlEncoding($encoding)
 	{
 		$this->_xmlEncoding = $encoding;

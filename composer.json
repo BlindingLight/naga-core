@@ -1,21 +1,28 @@
 {
-    "name": "naga/framework",
-    "description": "Naga framework.",
-    "version": "2.0.17",
-    "require": {
-        "php": ">=5.4.0"
-    },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "BlindingLight",
-            "email": "bloodredshade@gmail.com"
-        }
-    ],
-    "minimum-stability": "dev",
-    "autoload": {
-        "psr-0": {
-            "Naga": "/"
-        }
+  "name": "naga/framework",
+  "description": "Naga framework.",
+  "version": "2.0.18",
+  "require": {
+    "php": ">=5.4.0",
+    "twig/twig": ">=1.*",
+    "swiftmailer/swiftmailer": ">=5.2.0",
+    "propel/propel": "~2.0@dev"
+  },
+  "require-dev": {
+    "filp/whoops": "1.*",
+    "digitalnature/php-ref": "dev-master"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "BlindingLight",
+      "email": "bloodredshade@gmail.com"
     }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-0": {
+      "Naga": "/"
+    }
+  }
 }

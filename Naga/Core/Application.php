@@ -318,8 +318,10 @@ abstract class Application extends nComponent
 
 	/**
 	 * Gets the app's Config instance.
+	 * If no ConfigBag name specified gets 'application' ConfigBag instance.
+	 * You can access config properties like directory.configBagName::property.subProperty
 	 *
-	 * @param string $configName if you want to get a ConfigBag directly, specify it's name here
+	 * @param string $configName if you want to get a ConfigBag or property directly, specify it's name here
 	 * @return \Naga\Core\Config\Config|\Naga\Core\Config\ConfigBag
 	 * @throws \RuntimeException
 	 */
@@ -327,9 +329,9 @@ abstract class Application extends nComponent
 	{
 		try
 		{
-			return $configName
-				? self::instance()->component('config')->getConfigBag($configName)
-				: self::instance()->component('config');
+			$config = self::instance()->component('config');
+
+			return $configName === null ? $config : $config($configName);
 		}
 		catch (Exception\Component\NotFoundException $e)
 		{

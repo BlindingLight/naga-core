@@ -86,13 +86,61 @@ class Map extends nComponent implements \IteratorAggregate, \Countable, \ArrayAc
 
 	/**
 	 * Returns the item with the specified key, or null if the item doesn't exist.
+	 * You can use $key like object.property.subproperty or array.index.subindex.
+	 * You can use numeric indexes if property is an array.
+	 *
+	 * Examples:
+	 * 	array.0
+	 * 	array.testIndex.subIndex
+	 * 	object.propertyName.array.0.subIndex
 	 *
 	 * @param mixed $key
 	 * @return null|mixed
 	 */
 	public function get($key)
 	{
-		return isset($this->_data[$key]) ? $this->_data[$key] : null;
+		// we check whether a property with name $key exists, even if it contains .
+		$value = isset($this->_data[$key]) ? $this->_data[$key] : null;
+
+		if ($value !== null)
+			return $value;
+
+		// if we got . in key we check for subproperties
+		if (strpos($key, '.') !== false)
+		{
+			$parts = explode('.', $key);
+			// part 0 doesn't exist so we return null
+			if (!isset($this->_data[$parts[0]]))
+				return null;
+
+			$value = $this->_data[$parts[0]];
+			// checking parts
+			foreach ($parts as $idx => $part)
+			{
+				// skipping first part
+				if (!$idx)
+					continue;
+
+				// if object we check whether property with name $part exists
+				if (is_object($value))
+				{
+					if (!isset($value->{$part}))
+						return null;
+
+					$value = $value->{$part};
+				}
+				// if array we chekc whether index with name $part exists
+				else if (is_array($value))
+				{
+					if (!isset($value[$part]))
+						return null;
+
+					$value = $value[$part];
+				}
+			}
+		}
+
+		return $value;
 	}
 
 	/**

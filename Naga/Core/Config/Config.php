@@ -40,18 +40,36 @@ class Config extends nComponent
 
 	/**
 	 * Returns the ConfigBag instance with the specified name if Config called as a function.
-	 * Example: $app->config('application')
+	 * If no ConfigBag name specified gets 'application' ConfigBag instance.
+	 * You can access config properties like directory.configBagName::property.subProperty
+	 *
+	 * Example: $app->config('application.templates.root')
 	 *
 	 * @param string $name
 	 * @return \Naga\Core\Config\ConfigBag
+	 * @throws \Exception
 	 */
 	public function __invoke($name)
 	{
+		if (!$name)
+			$name = 'application';
+
+		// we try to return a config property
+		if (strpos($name, '::') !== false)
+		{
+			list($configBagName, $propertyName) = explode('::', $name);
+			$bag = $this->getConfigBag($configBagName);
+
+			return $bag->get($propertyName);
+		}
+
+		// we return a ConfigBag
 		return $this->getConfigBag($name);
 	}
 
 	/**
 	 * Returns the ConfigBag instance with the specified name if accessed like a property.
+	 *
 	 * Example: $app->config->application
 	 *
 	 * @param string $name
@@ -147,7 +165,7 @@ class Config extends nComponent
 		}
 		catch (\Exception $e)
 		{
-			throw new NotExistsException("Can't get config with name '{$name}'.");
+			throw new NotExistsException("Can't get ConfigBag instance with name '{$name}'.");
 		}
 	}
 

@@ -6,7 +6,6 @@ use Naga\Core\Application;
 use Naga\Core\Collection\Map;
 use Naga\Core\Config\ConfigBag;
 use Naga\Core\Exception\ConfigException;
-use Naga\Core\nComponent;
 
 /**
  * Template implementation for generating content with Twig.
@@ -52,23 +51,23 @@ class TwigTemplate extends Map implements iTemplate
 
 		// getting config
 		if ($config instanceof ConfigBag)
-			$this->_templateRoot = $config->get('templates')->root . '/';
+			$this->_templateRoot = $config->get('templates.root') . '/';
 		else if (is_array($config) && isset($config['templateRoot']))
 		{
 			$this->_templateRoot =  $config['templateRoot'];
-			$config = $app->config('application');
+			$config = $app->config('twig');
 		}
 		else
 		{
-			$this->_templateRoot = $app->config('application')->get('templates')->root;
-			$config = $app->config('application');
+			$this->_templateRoot = $app->config('twig::templates.root');
+			$config = $app->config('twig');
 		}
 
 		$loader = new \Twig_Loader_Filesystem($this->_templateRoot);
 		$this->_twig = new \Twig_Environment(
 			$loader,
 			array(
-				'cache' => $config->get('templates')->compiled,
+				'cache' => $config->get('templates.compiled'),
 				'debug' => $config->get('debug')
 			)
 		);
@@ -76,62 +75,9 @@ class TwigTemplate extends Map implements iTemplate
 		// setting debug mode
 		$this->_debug = $config->get('debug');
 
-		// registering localize filter
-		$localization = $app->localization();
-		$this->_twig->addFilter(
-			new \Twig_SimpleFilter(
-				'localize',
-				function($constant) use(&$localization)
-				{
-					return $localization->get($constant);
-				}
-			)
-		);
-
-		$this->_twig->addFilter(
-			new \Twig_SimpleFilter(
-				'l',
-				function($constant) use(&$localization)
-				{
-					return $localization->get($constant);
-				}
-			)
-		);
-
-		// registering url generator filter
-		$urlGenerator = $app->urlGenerator();
-		$this->_twig->addFilter(
-			new \Twig_SimpleFilter(
-				'url',
-				function($route, $properties = '') use(&$urlGenerator)
-				{
-					return $urlGenerator->route($route, $properties, false, false);
-				}
-			)
-		);
-
-		// registering resource url generator filter
-		$this->_twig->addFilter(
-			new \Twig_SimpleFilter(
-				'resource',
-				function($path) use(&$urlGenerator)
-				{
-					return $urlGenerator->resource($path);
-				}
-			)
-		);
-
-		// registering ceil, floor filters
-		$this->_twig->addFilter(new \Twig_SimpleFilter('ceil', 'ceil'));
-		$this->_twig->addFilter(new \Twig_SimpleFilter('floor', 'floor'));
-
-		// registering number related filters
-		$this->_twig->addFilter(new \Twig_SimpleFilter('groupThousands', function($val, $decPoint = '.', $thousandSep = ',') {
-				$tmp = explode('.', $val);
-				$decimals = count($tmp) > 1 ? strlen($tmp[count($tmp) - 1]) : 0;
-				return number_format($val, $decimals, $decPoint, $thousandSep);
-			})
-		);
+		// registering filters
+		foreach ($app->config('twig::filters') as $filterName => $filterCallback)
+			$this->registerFilter($app, $filterName, $filterCallback);
 
 		// registering date filter
 		$this->_twig->addFilter(
@@ -140,6 +86,30 @@ class TwigTemplate extends Map implements iTemplate
 				function($date, $format = 'l, jS F, Y')
 				{
 					return date($format, strtotime($date));
+				}
+			)
+		);
+	}
+
+	/**
+	 * Registers a Twig filter.
+	 *
+	 * @param Application $app
+	 * @param string $filterName
+	 * @param callable|string $filterCallback
+	 */
+	public function registerFilter(Application &$app, $filterName, $filterCallback)
+	{
+		if (is_string($filterCallback))
+		{
+			$this->_twig->addFilter(new \Twig_SimpleFilter($filterName, $filterCallback));
+			return;
+		}
+
+		$this->_twig->addFilter(
+			new \Twig_SimpleFilter(
+				$filterName, function() use (&$app, $filterCallback) {
+					return call_user_func_array($filterCallback, array_merge(array($app), func_get_args()));
 				}
 			)
 		);

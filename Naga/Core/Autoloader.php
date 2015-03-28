@@ -95,12 +95,13 @@ class Autoloader extends nComponent
 	 */
 	public function autoload($className)
 	{
-		if (strpos($className, 'Naga') !== false)
+		$nagaPos = strpos($className, 'Naga');
+		if ($nagaPos === 0 || $nagaPos === 1)
 			return;
 
 		$filePath = $this->getExternalFileName($className);
 		$filePath = $this->_rootDirectory . ($filePath ? $filePath : $this->getPackageFileName($className));
-		$filePath = str_replace('\\', '/', $filePath);
+		$filePath = str_replace('//', '/', str_replace('\\', '/', $filePath));
 		if (!file_exists($filePath))
 			throw new Exception\AutoloadException("Couldn't find class $className ($filePath)");
 

@@ -25,6 +25,17 @@ class ConfigBag extends Map
 	}
 
 	/**
+	 * Gets a config property if accessed like $configBag->property.
+	 *
+	 * @param string $name
+	 * @return mixed|null
+	 */
+	public function __get($name)
+	{
+		return $this->get($name);
+	}
+
+	/**
 	 * Gets a config property as string.
 	 *
 	 * @param string $name
