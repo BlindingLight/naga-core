@@ -14,6 +14,7 @@ abstract class Command extends nComponent implements iCommand
 	protected $_commandLine;
 	protected $_name;
 	protected $_aliases = array();
+	protected $_description = '';
 
 	/**
 	 * Sets CommandLine instance.
@@ -51,6 +52,16 @@ abstract class Command extends nComponent implements iCommand
 	public function aliases()
 	{
 		return $this->_aliases;
+	}
+
+	/**
+	 * Gets command description.
+	 *
+	 * @return string
+	 */
+	public function description()
+	{
+		return $this->_description;
 	}
 
 	/**

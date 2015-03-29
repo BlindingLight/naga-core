@@ -9,16 +9,27 @@ use Naga\Core\nComponent;
 
 class CommandLine extends nComponent
 {
-	protected $_commands = array();
-	protected $_aliases = array();
-
+	/**
+	 * @var \Naga\Core\Cli\Commands\Command[] commands
+	 */
+	protected $_commands = [];
+	/**
+	 * @var array command aliases
+	 */
+	protected $_aliases = [];
+	/**
+	 * @var ConfigBag
+	 */
 	protected $_settings;
+	/**
+	 * @var iLogger
+	 */
 	protected $_logger;
 
 	public function __construct(ConfigBag $settings, iLogger $logger = null)
 	{
 		$this->_logger = $logger ? $logger : new CommandLineLogger();
-		$commands = $settings->offsetExists('commands') ? $settings->getArray('commands') : array();
+		$commands = $settings->offsetExists('commands') ? $settings->getArray('commands') : [];
 		$settings->remove('commands');
 
 		foreach ($commands as $command)
@@ -132,6 +143,13 @@ class CommandLine extends nComponent
 
 	}
 
+	/**
+	 * Executes a command.
+	 *
+	 * @param string $name
+	 * @param array $args
+	 * @return bool
+	 */
 	public function executeCommand($name, $args = array())
 	{
 		$command = isset($this->_commands[$name]) ? $this->_commands[$name] : null;
@@ -181,6 +199,18 @@ class CommandLine extends nComponent
 	{
 		if (isset($this->_commands[$commandName]))
 			unset($this->_commands[$commandName]);
+	}
+
+	/**
+	 * Dumps available commands to console.
+	 */
+	public function dumpCommands()
+	{
+		$text = 'Available commands:';
+		foreach ($this->_commands as $command)
+			$text .= "\n\t" . $command->name() . "\t\t" . $command->description();
+
+		$this->info($text);
 	}
 
 	/**

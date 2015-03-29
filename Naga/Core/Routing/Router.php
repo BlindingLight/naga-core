@@ -284,7 +284,7 @@ class Router extends nComponent
 	}
 
 	/**
-	 * Adds a route. Route must be a callable function or a string with format 'className[at]methodName'.
+	 * Adds a route. Route must be a callable function or a string with format 'className@methodName'.
 	 *
 	 * @param string $mappedUrl
 	 * @param \Callable|string $route
@@ -310,6 +310,7 @@ class Router extends nComponent
 
 		foreach ($this->request()->httpMethodList() as $method)
 		{
+			// processing method name
 			if (isset($route->{$method}) && !is_callable($route->{$method}))
 			{
 				// replacing dots with backslashes

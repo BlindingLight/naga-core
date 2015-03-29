@@ -7,7 +7,8 @@ use Naga\Core\Cli\iCommand;
 final class Update extends Command implements iCommand
 {
 	protected $_name = 'update';
-	protected $_aliases = array('bootstrap-update', 'upb');
+	protected $_aliases = array('upd');
+	protected $_description = 'Updates bootstrap code.';
 
 	/**
 	 * Executes the command.
@@ -18,11 +19,11 @@ final class Update extends Command implements iCommand
 	public function execute(array $args = array())
 	{
 		$this->cmd()->info('Updating bootstrap...');
-		$exec = shell_exec('php ' . getcwd() . '/app/bootstrap.php update');
+		$exec = shell_exec('php ' . getcwd() . '/app/bootstrap.php');
 
 		if ($exec)
 			$this->cmd()->debug($exec);
 
-		$this->cmd()->info('Finished');
+		$this->cmd()->info('Update finished.');
 	}
 }

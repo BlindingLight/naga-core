@@ -1,12 +1,12 @@
 {
   "name": "naga/framework",
   "description": "Naga framework.",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "require": {
     "php": ">=5.4.0",
     "twig/twig": ">=1.8",
     "swiftmailer/swiftmailer": ">=5.2.0",
-    "propel/propel": "~2.0@dev"
+    "propel/propel": ">=2.0"
   },
   "require-dev": {
     "filp/whoops": "1.*",
@@ -21,7 +21,7 @@
   ],
   "minimum-stability": "dev",
   "autoload": {
-    "psr-0": {
+    "psr-4": {
       "Naga": "/"
     }
   }
