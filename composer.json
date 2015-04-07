@@ -1,7 +1,6 @@
 {
   "name": "naga/framework",
   "description": "Naga framework.",
-  "version": "2.1.22",
   "require": {
     "php": ">=5.4.0",
     "twig/twig": ">=1.8",

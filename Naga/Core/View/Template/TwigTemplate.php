@@ -147,7 +147,7 @@ class TwigTemplate extends Map implements iTemplate
 	public function get($name, $default = null)
 	{
 		$data = parent::get($name);
-		return $data != null ? $data : $default;
+		return $data !== null ? $data : $default;
 	}
 
 	/**

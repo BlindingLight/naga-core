@@ -79,7 +79,7 @@ class PgSqlConnection extends CacheableDatabaseConnection
 	 */
 	public function disconnect()
 	{
-		@pg_close($this->_connection);
+		pg_close($this->_connection);
 	}
 
 	/**
@@ -109,7 +109,7 @@ class PgSqlConnection extends CacheableDatabaseConnection
 		if (!$this->connected())
 			throw new Exception\DatabaseException("Can't do query on a closed connection.");
 
-		$q = @pg_query_params($this->_connection, $query, $args);
+		$q = pg_query_params($this->_connection, $query, $args);
 		if ($q === false)
 			throw new Exception\DatabaseException('Failed to execute query: ' . pg_last_error($this->_connection));
 
@@ -157,7 +157,7 @@ class PgSqlConnection extends CacheableDatabaseConnection
 		if (!$this->connected())
 			throw new Exception\DatabaseException("Can't do rawQuery on a closed connection.");
 
-		$q = @pg_query($this->_connection, $query);
+		$q = pg_query($this->_connection, $query);
 		if ($q === false)
 		{
 			$this->_lastErrorMessage = pg_last_error($this->_connection);;
@@ -203,10 +203,10 @@ class PgSqlConnection extends CacheableDatabaseConnection
 	 */
 	protected function parseResult($result)
 	{
-		$this->_lastAffectedRows = @pg_affected_rows($result);
+		$this->_lastAffectedRows = pg_affected_rows($result);
 
 		$rows = array();
-		while ($row = @pg_fetch_object($result))
+		while ($row = pg_fetch_object($result))
 		{
 			foreach ($row as $key => $value)
 			{
@@ -222,7 +222,7 @@ class PgSqlConnection extends CacheableDatabaseConnection
 		if ($row === false && !count($rows) && $this->_lastAffectedRows)
 			return $this->_lastAffectedRows;
 
-		@pg_free_result($result);
+		pg_free_result($result);
 
 		return $rows;
 	}

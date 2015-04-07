@@ -521,7 +521,7 @@ abstract class Application extends nComponent
 		}
 
 		http_response_code($statusCode);
-		header('Location: ' . $url);
+		header("Location: {$url}");
 
 		exit;
 	}

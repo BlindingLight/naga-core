@@ -84,6 +84,8 @@ class QueuePostgreStorage extends nComponent implements iQueueStorage
 					substr($key, 0, 40)
 				)
 			);
+
+			return $item;
 		}
 		catch (\Exception $e)
 		{

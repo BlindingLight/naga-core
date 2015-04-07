@@ -88,7 +88,7 @@ abstract class Model extends Map
 			$this->remove('id');
 
 		$query = $this->app()->queryBuilder()->reset();
-		$data = $query->table($this->_table)->insert($this->toArray())->execute();
+		$query->table($this->_table)->insert($this->toArray())->execute();
 
 		return $this;
 	}

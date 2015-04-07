@@ -224,7 +224,7 @@ class Map extends nComponent implements \IteratorAggregate, \Countable, \ArrayAc
 				$tmp[$key] = $value;
 		}
 
-		$this->_data = array_merge($this->_data, $data);
+		$this->_data = array_merge($this->_data, $tmp);
 
 		return $this;
 	}

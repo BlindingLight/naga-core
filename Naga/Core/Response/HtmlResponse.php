@@ -2,8 +2,6 @@
 
 namespace Naga\Core\Response;
 
-use Naga\Core\nComponent;
-
 /**
  * A class for html responses. It simply echoes it's $_data.
  *
