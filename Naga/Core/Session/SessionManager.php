@@ -86,6 +86,17 @@ class SessionManager extends nComponent
 	}
 
 	/**
+	 * Regenerates session id.
+	 *
+	 * @param bool $deleteOldSession Whether to delete the old associated session data or not.
+	 * @return bool
+	 */
+	public function regenerateId($deleteOldSession = false)
+	{
+		return $this->storage()->regenerateId($deleteOldSession);
+	}
+
+	/**
 	 * Gets the storage instance.
 	 *
 	 * @return Storage\iSessionStorage

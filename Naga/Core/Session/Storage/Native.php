@@ -20,13 +20,14 @@ class Native extends nComponent implements iSessionStorage
 	}
 
 	/**
-	 * Gets the current session id.
+	 * Gets or sets the current session id.
 	 *
+	 * @param string $sessionId
 	 * @return string
 	 */
-	public function sessionId()
+	public function sessionId($sessionId = null)
 	{
-		return session_id();
+		return session_id($sessionId);
 	}
 
 	/**
@@ -103,5 +104,16 @@ class Native extends nComponent implements iSessionStorage
 	public function end()
 	{
 		return session_destroy();
+	}
+
+	/**
+	 * Regenerates session id.
+	 *
+	 * @param bool $deleteOldSession Whether to delete the old associated session file or not.
+	 * @return bool
+	 */
+	public function regenerateId($deleteOldSession = false)
+	{
+		return session_regenerate_id($deleteOldSession);
 	}
 }

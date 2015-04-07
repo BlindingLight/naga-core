@@ -122,6 +122,10 @@ class Event extends nComponent
 
 					$stopPropagation = call_user_func_array($callable, $privateParams);
 				}
+				else if (is_object($listener))
+				{
+					$stopPropagation = call_user_func_array(array($listener->task, 'handle'), $privateParams);
+				}
 
 				if ($stopPropagation === false)
 					break;

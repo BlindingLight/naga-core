@@ -322,7 +322,7 @@ abstract class Application extends nComponent
 	 * You can access config properties like directory.configBagName::property.subProperty
 	 *
 	 * @param string $configName if you want to get a ConfigBag or property directly, specify it's name here
-	 * @return \Naga\Core\Config\Config|\Naga\Core\Config\ConfigBag
+	 * @return \Naga\Core\Config\Config|\Naga\Core\Config\ConfigBag|mixed
 	 * @throws \RuntimeException
 	 */
 	public static function config($configName = null)

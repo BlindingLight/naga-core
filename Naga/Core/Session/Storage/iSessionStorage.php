@@ -62,4 +62,12 @@ interface iSessionStorage
 	 * @return bool
 	 */
 	function end();
+
+	/**
+	 * Regenerates session id.
+	 *
+	 * @param bool $deleteOldSession Whether to delete the old associated session data or not.
+	 * @return bool
+	 */
+	function regenerateId($deleteOldSession = false);
 }

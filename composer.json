@@ -8,6 +8,7 @@
     "swiftmailer/swiftmailer": ">=5.2.0",
     "propel/propel": "2.0.*@dev"
   },
+  "minimum-stability": "dev",
   "require-dev": {
     "filp/whoops": "1.*",
     "digitalnature/php-ref": "dev-master"

@@ -2,6 +2,7 @@
 
 namespace Naga\Core\Routing;
 
+use Naga\Core\Proxy\Events;
 use Naga\Core\Request\Request;
 use Naga\Core\nComponent;
 use Naga\Core\Exception;
@@ -80,6 +81,9 @@ class Router extends nComponent
 	public function routeUri()
 	{
 		$this->profiler()->createTimer('routeUri');
+
+		// csrf check before routing
+		Events::fire('csrf.check');
 
 		$route = $this->matchUri($this->uri());
 		$route->parameters = $this->getParameters($this->_matchedMappedUrl, $route->parameters);
