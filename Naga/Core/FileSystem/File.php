@@ -3,7 +3,6 @@
 namespace Naga\Core\FileSystem;
 
 use Naga\Core\nComponent;
-use Naga\Core\Exception;
 
 /**
  * A class that helps managing a file. It uses iFileSystem interface.

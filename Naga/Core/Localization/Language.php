@@ -105,7 +105,6 @@ class Language extends nComponent
 	public function set($name, $value)
 	{
 		$name = $this->isoCode() . $name;
-		// TODO: proper ttl for language item cache storing
 		return $this->cache()->set($name, $value, 0);
 	}
 

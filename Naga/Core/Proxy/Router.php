@@ -2,8 +2,6 @@
 
 namespace Naga\Core\Proxy;
 
-use Naga\Core\Exception;
-
 class Router extends Proxy
 {
 	/**

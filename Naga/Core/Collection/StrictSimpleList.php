@@ -3,7 +3,6 @@
 namespace Naga\Core\Collection;
 
 use Naga\Core\Exception\Collection\TypeMismatchException;
-use Naga\Core\Exception\CollectionException;
 
 /**
  * List implementation with strict item type.

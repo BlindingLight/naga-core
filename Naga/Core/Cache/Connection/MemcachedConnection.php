@@ -60,7 +60,7 @@ class MemcachedConnection extends nComponent implements iCache
 		if ($this->_state == self::StateConnected)
 			return true;
 
-		if (@$this->_instance->pconnect($this->_host, $this->_port))
+		if ($this->_instance->pconnect($this->_host, $this->_port))
 		{
 			$this->_state = self::StateConnected;
 			return true;
