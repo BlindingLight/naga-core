@@ -15,6 +15,11 @@ class Image extends File
 	// filter consts
 	const FilterGrayscale = IMG_FILTER_GRAYSCALE;
 
+	// file types
+	const PNG = 1;
+	const JPEG = 2;
+	const JPG = 2;
+
 	/**
 	 * @var object original width and height
 	 */
@@ -26,11 +31,12 @@ class Image extends File
 	/**
 	 * @var array basic filters
 	 */
-	protected $_basicFilters = array();
+	protected $_basicFilters = [];
 
 	/**
 	 * Saves a cropped image. Currently supports only jpeg images.
 	 *
+	 * @param int $fileType
 	 * @param string $fileName
 	 * @param int $width
 	 * @param int $height
@@ -42,13 +48,33 @@ class Image extends File
 	 * @throws \Exception
 	 */
 	public function saveCropped($fileName, $width, $height, $cropX = null, $cropY = null,
-								$cropW = null, $cropH = null)
+								$cropW = null, $cropH = null, $fileType = null)
 	{
 		$this->initImage();
-		$fileName = $fileName . $this->getExtensionFromMimeType($this->mimeType());
 
-		$original = imagecreatefromjpeg($this->realPath());
+		if ($fileType == static::PNG)
+			$fileName .= '.png';
+		else if ($fileType == static::JPG || $fileType == static::JPEG)
+			$fileName .= '.jpg';
+		else
+			$fileName .= $this->getExtensionFromMimeType($this->mimeType());
+
+		if ($this->mimeType() == 'image/jpeg')
+			$original = imagecreatefromjpeg($this->realPath());
+		else if ($this->mimeType() == 'image/png')
+			$original = imagecreatefrompng($this->realPath());
+		else
+			throw new \Exception('Unsupported file type.');
+
 		$buffer = imagecreatetruecolor($width, $height);
+
+		if ($fileType == static::PNG)
+		{
+			imagealphablending($buffer, false);
+			imagesavealpha($buffer, true);
+			$transparent = imagecolorallocatealpha($buffer, 255, 255, 255, 127);
+			imagefilledrectangle($buffer, 0, 0, $width, $height, $transparent);
+		}
 
 		if (is_null($cropW) || is_null($cropH))
 			$cropSizes = $this->getCropSizeByAspectRatio((object)array('width' => $width, 'height' => $height));
@@ -76,7 +102,13 @@ class Image extends File
 		foreach ($this->_basicFilters as $filter)
 			imagefilter($buffer, $filter);
 
-		$img = imagejpeg($buffer, $fileName, 90);
+		if ($fileType == static::JPG || $fileType == static::JPEG)
+			$img = imagejpeg($buffer, $fileName, 90);
+		else if ($fileType == static::PNG)
+			$img = imagepng($buffer, $fileName, 2);
+		else
+			throw new \Exception('Unsupported file type.');
+
 		if ($img)
 			chmod($fileName, 0777);
 
@@ -121,10 +153,10 @@ class Image extends File
 		if ($sizes === false)
 			throw new \Exception('Could not get image width and height.');
 
-		$this->_originalSize = (object)array(
+		$this->_originalSize = (object)[
 			'width' => $sizes[0],
 			'height' => $sizes[1]
-		);
+		];
 		$this->_originalRatio = $this->_originalSize->width / $this->_originalSize->height;
 	}
 
