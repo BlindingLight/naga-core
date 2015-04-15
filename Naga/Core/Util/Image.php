@@ -102,12 +102,10 @@ class Image extends File
 		foreach ($this->_basicFilters as $filter)
 			imagefilter($buffer, $filter);
 
-		if ($fileType == static::JPG || $fileType == static::JPEG)
-			$img = imagejpeg($buffer, $fileName, 90);
-		else if ($fileType == static::PNG)
+		$img = imagejpeg($buffer, $fileName, 90);
+
+		if ($fileType == static::PNG)
 			$img = imagepng($buffer, $fileName, 2);
-		else
-			throw new \Exception('Unsupported file type.');
 
 		if ($img)
 			chmod($fileName, 0777);
