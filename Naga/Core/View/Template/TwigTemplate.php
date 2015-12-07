@@ -109,7 +109,7 @@ class TwigTemplate extends Map implements iTemplate
 		$this->_twig->addFilter(
 			new \Twig_SimpleFilter(
 				$filterName, function() use (&$app, $filterCallback) {
-					return call_user_func_array($filterCallback, array_merge(array($app), func_get_args()));
+					return call_user_func_array($filterCallback, array_merge([&$app], func_get_args()));
 				}
 			)
 		);
