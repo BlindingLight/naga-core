@@ -2,17 +2,9 @@
   "name": "naga/framework",
   "description": "Naga framework.",
   "require": {
-    "php": ">=5.4.0",
-    "twig/twig": ">=1.8",
-    "swiftmailer/swiftmailer": ">=5.2.0",
-    "doctrine/orm": "2.4.*",
-    "symfony/yaml": "2.*"
+    "php": ">=5.4.0"
   },
   "minimum-stability": "dev",
-  "require-dev": {
-    "filp/whoops": "1.*",
-    "digitalnature/php-ref": "dev-master"
-  },
   "license": "MIT",
   "authors": [
     {

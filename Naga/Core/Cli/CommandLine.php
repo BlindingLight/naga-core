@@ -138,9 +138,19 @@ class CommandLine extends nComponent
 		return $prefix;
 	}
 
+	/**
+	 * Asks a question.
+	 *
+	 * @param string $question
+	 * @return string
+	 */
 	public function ask($question)
 	{
+		$this->log(-1, '[?] ' . $question);
+		$handle = fopen ('php://stdin', 'r');
+		$line = fgets($handle);
 
+		return trim($line);
 	}
 
 	/**

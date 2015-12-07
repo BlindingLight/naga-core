@@ -10,7 +10,7 @@ use Naga\Core\nComponent;
  * @package Naga\Core\Util
  * @author  BlindingLight<bloodredshade@gmail.com>
  */
-class String extends nComponent
+class Strings extends nComponent
 {
 	/**
 	 * @var string current value

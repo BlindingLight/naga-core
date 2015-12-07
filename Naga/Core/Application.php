@@ -2,6 +2,7 @@
 
 namespace Naga\Core;
 
+use Naga\Core\Action\Action;
 use Naga\Core\Auth\Auth;
 use \Naga\Core\Exception;
 
@@ -510,6 +511,7 @@ abstract class Application extends nComponent
 		$instance = !is_null($appInstance) ? self::instance($appInstance) : self::instance();
 		$instance->finish();
 
+		// TODO: check this, seems buggy
 		if (strpos($url, '@') !== false)
 		{
 			$tmp = explode(';', $url);
@@ -550,7 +552,22 @@ abstract class Application extends nComponent
 	 */
 	public function run()
 	{
+		// logout
+		if ($this->auth()->isLoggedIn() && $this->input()->exists('logout'))
+		{
+			$this->auth()->logout();
+			self::redirectTo();
+		}
 
+		$defaultRoute = self::auth()->isLoggedIn()
+						? self::config()->application->get('defaultRouteIfLoggedIn')
+						: self::config()->application->get('defaultRoute');
+		self::router()->setDefaultRoute($defaultRoute);
+		$controllerResult = self::router()->routeUri();
+		if ($controllerResult instanceof Action)
+			$controllerResult->execute();
+		else if (is_string($controllerResult))
+			echo $controllerResult;
 	}
 
 	/**
