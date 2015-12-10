@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Naga\Core;
 
 use Naga\Core\Action\Action;
 use Naga\Core\Auth\Auth;
+use Naga\Core\Database\Connection\CacheableDatabaseConnection;
+use Naga\Core\Database\Connection\iDatabaseConnection;
 use \Naga\Core\Exception;
 
 /**
@@ -17,12 +21,12 @@ abstract class Application extends nComponent
 	/**
 	 * @var Application[] Application instance list
 	 */
-	private static $_instances = array();
+	private static $_instances = [];
 
 	/**
 	 * @var string default instance name
 	 */
-	private static $_defaultInstanceName = 'default';
+	protected static $_defaultInstanceName = 'default';
 
 	/**
 	 * @var string instance name
@@ -33,13 +37,20 @@ abstract class Application extends nComponent
 	 * Construct. DON'T overwrite it, or use parent::__construct() if you want the created instance
 	 * to appear in $_instances list.
 	 *
-	 * @param string|null $name created instance name
+	 * @param string $name created instance name (can be empty)
+	 * @throws \Exception
 	 */
-	public function __construct($name = null)
+	public function __construct(\string $name = '')
 	{
-		$this->_instanceName = !count(self::$_instances)
-			? self::$_defaultInstanceName
-			: ($name ? $name : str_replace(__NAMESPACE__, '', __CLASS__));
+		// if no name specified, we set a default name
+		if (!$name)
+		{
+			$name = !count(self::$_instances)
+					? static::$_defaultInstanceName
+					: str_replace(__NAMESPACE__, '', __CLASS__);
+		}
+
+		$this->_instanceName = $name;
 
 		self::registerInstance($this);
 	}
@@ -48,10 +59,10 @@ abstract class Application extends nComponent
 	 * Registers an instance in the $_instances list. If name is taken, throws an \Exception.
 	 *
 	 * @param Application $instance
-	 * @param null|string $name
+	 * @param string $name
 	 * @throws \Exception
 	 */
-	public static function registerInstance(Application $instance, $name = null)
+	public static function registerInstance(Application $instance, \string $name = '')
 	{
 		$name = $name ? $name : $instance->instanceName();
 		if (isset(self::$_instances[$name]))
@@ -68,9 +79,9 @@ abstract class Application extends nComponent
 	 * @return $this
 	 * @throws \Exception
 	 */
-	public static function instance($name = null)
+	public static function instance(\string $name = ''): self
 	{
-		$name = $name ? $name : self::$_defaultInstanceName;
+		$name = $name ? $name : static::$_defaultInstanceName;
 		if (!isset(self::$_instances[$name]))
 			throw new \Exception("Can't get Application instance with name {$name}.");
 
@@ -82,7 +93,7 @@ abstract class Application extends nComponent
 	 *
 	 * @return string
 	 */
-	public function instanceName()
+	public function instanceName(): \string
 	{
 		return $this->_instanceName;
 	}
@@ -91,9 +102,9 @@ abstract class Application extends nComponent
 	 * Gets a component.
 	 *
 	 * @param string $name
-	 * @return callable|nComponent
+	 * @return nComponent
 	 */
-	public function __get($name)
+	public function __get(\string $name): nComponent
 	{
 		return $this->component($name);
 	}
@@ -102,9 +113,11 @@ abstract class Application extends nComponent
 	 * Sets a component.
 	 *
 	 * @param string $name
-	 * @param callable|nComponent $value
+	 * @param nComponent $value
+	 * @throws Exception\Component\AlreadyRegisteredException
+	 * @throws Exception\Component\InvalidException
 	 */
-	public function __set($name, $value)
+	public function __set(\string $name, nComponent $value)
 	{
 		$this->registerComponent($name, $value);
 	}
@@ -113,40 +126,26 @@ abstract class Application extends nComponent
 	 * Gets a component. You may add methods to access your components for auto-completion in IDEs.
 	 *
 	 * @param string $name
-	 * @param array $args
-	 * @return mixed
-	 * @throws Exception\Component\NotCallableException
+	 * @return nComponent
+	 * @throws Exception\Component\NotFoundException
 	 */
-	public function __call($name, $args)
+	public function __call(\string $name): nComponent
 	{
-		$component = $this->component($name);
-		if (is_callable($component))
-			return call_user_func_array($component, $args);
-		else
-			throw new Exception\Component\NotCallableException("Component $name (" . gettype($component) . ") is not callable.");
+		return $this->component($name);
 	}
 
 	/**
-	 * Gets a component statically. You may add methods to access your components for auto-completing in IDEs.
+	 * Gets a component statically. You may add methods to access your components for auto-completion in IDEs.
 	 *
 	 * @param string $name
-	 * @param array $args
-	 * @return mixed|nComponent
+	 * @return mixed|\Naga\Core\nComponent
 	 * @throws \RuntimeException
-	 * @throws Exception\Component\NotCallableException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function __callStatic($name, $args)
+	public static function __callStatic(\string $name)
 	{
 		if (self::instance())
-		{
-			$component = self::instance()->component($name);
-			if ($component instanceof nComponent)
-				return $component;
-			else if (is_callable($component))
-				return call_user_func_array($component, $args);
-			else
-				throw new Exception\Component\NotCallableException("Component $name (" . gettype($component) . ") is not callable or not an instance of nComponent.");
-		}
+			return self::instance()->component($name);
 
 		throw new \RuntimeException("Can't get Application instance.");
 	}
@@ -155,18 +154,11 @@ abstract class Application extends nComponent
 	 * Gets Validator instance.
 	 *
 	 * @return \Naga\Core\Validation\Validator
-	 * @throws \Exception
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function validator()
+	public static function validator(): \Naga\Core\Validation\Validator
 	{
-		try
-		{
-			return self::instance()->component('validator');
-		}
-		catch (\Exception $e)
-		{
-			throw new \Exception("Can't get Validator instance.");
-		}
+		return self::instance()->component('validator');
 	}
 
 	/**
@@ -174,21 +166,14 @@ abstract class Application extends nComponent
 	 *
 	 * @param string|null $connectionName
 	 * @return \Naga\Core\Database\Connection\iDatabaseConnection|\Naga\Core\Database\Connection\CacheableDatabaseConnection|\Naga\Core\Database\DatabaseManager
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
 	public static function database($connectionName = 'default')
 	{
-		try
-		{
-			if ($connectionName)
-				return self::instance()->component('database')->get($connectionName);
+		if ($connectionName)
+			return self::instance()->component('database')->get($connectionName);
 
-			return self::instance()->component('database');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get connection '$connectionName', missing DatabaseManager instance.");
-		}
+		return self::instance()->component('database');
 	}
 
 	/**

@@ -134,7 +134,7 @@ abstract class nComponent implements iComponent
 	public function component($name)
 	{
 		if (!isset($this->_components[$name]))
-			throw new Exception\Component\NotFoundException("Component $name not found.");
+			throw new Exception\Component\NotFoundException("Component {$name} not found in " . __CLASS__);
 
 		return $this->_components[$name];
 	}
