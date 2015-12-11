@@ -17,11 +17,11 @@ class Autoloader extends nComponent
 	/**
 	 * @var array External class mappings
 	 */
-	private $_externalClasses = array();
+	private $_externalClasses = [];
 	/**
 	 * @var array External class resolver callable functions
 	 */
-	private $_externalResolvers = array();
+	private $_externalResolvers = [];
 	/**
 	 * @var string Root directory, where autoloader can find files
 	 */
@@ -32,15 +32,15 @@ class Autoloader extends nComponent
 	 *
 	 * @param string $rootDirectory
 	 */
-	public function setRootDirectory($rootDirectory)
+	public function setRootDirectory(\string $rootDirectory)
 	{
-		$this->_rootDirectory = $rootDirectory . '/';
+		$this->_rootDirectory = "{$rootDirectory}/";
 	}
 
 	/**
 	 * Adds external class mappings. Expects an array in format array('className' => 'filePath', ...)
 	 *
-	 * @param $externalClasses
+	 * @param array $externalClasses
 	 * @throws Exception\ArgumentMismatchException
 	 */
 	public function addExternalClasses(array $externalClasses)
@@ -54,27 +54,32 @@ class Autoloader extends nComponent
 	/**
 	 * Adds an external class mapping.
 	 *
-	 * @param $className
-	 * @param $filePath
+	 * @param string $className
+	 * @param string $filePath
 	 */
-	public function addExternalClass($className, $filePath)
+	public function addExternalClass(\string $className, \string $filePath)
 	{
 		$this->_externalClasses[$className] = $filePath;
 	}
 
 	/**
-	 * Adds an external class resolver.
+	 * Adds an external class resolver. Autoloader calls $callable when class names
+	 * start with $startString.
 	 *
-	 * @param int $stringStart
+	 * Example:
+	 * $startString = 'Test'
+	 * then TestSomething, TestAnother, TestBlah will match
+	 *
+	 * @param string $startString
 	 * @param callable $callable
 	 */
-	public function addExternalResolver($stringStart, $callable)
+	public function addExternalResolver(\string $startString, callable $callable)
 	{
-		$this->_externalResolvers[$stringStart] = $callable;
+		$this->_externalResolvers[$startString] = $callable;
 	}
 
 	/**
-	 * Adds external class resolvers. Expects an array in format array('className' => callable, ...)
+	 * Adds external class resolvers. Expects an array in format array('startString' => callable, ...)
 	 *
 	 * @param $resolvers
 	 * @throws Exception\ArgumentMismatchException
@@ -88,12 +93,12 @@ class Autoloader extends nComponent
 	}
 
 	/**
-	 * Autoloads a class.
+	 * Loads a class (require_once).
 	 *
-	 * @param $className
+	 * @param string $className
 	 * @throws Exception\AutoloadException
 	 */
-	public function autoload($className)
+	public function autoload(\string $className)
 	{
 		$nagaPos = strpos($className, 'Naga');
 		if ($nagaPos === 0 || $nagaPos === 1)
@@ -103,7 +108,7 @@ class Autoloader extends nComponent
 		$filePath = $this->_rootDirectory . ($filePath ? $filePath : $this->getPackageFileName($className));
 		$filePath = str_replace('//', '/', str_replace('\\', '/', $filePath));
 		if (!file_exists($filePath))
-			throw new Exception\AutoloadException("Couldn't find class $className ($filePath)");
+			throw new Exception\AutoloadException("Couldn't find class {$className} ({$filePath})");
 
 		require_once $filePath;
 	}
@@ -111,11 +116,11 @@ class Autoloader extends nComponent
 	/**
 	 * Gets an internal class file name.
 	 *
-	 * @param $className
+	 * @param string $className
 	 * @return string
 	 * @deprecated
 	 */
-	protected function getInternalFileName($className)
+	protected function getInternalFileName(\string $className): \string
 	{
 		$tmp = explode('\\', $className);
 		// remove Naga namespace
@@ -127,16 +132,16 @@ class Autoloader extends nComponent
 		foreach (array_values($tmp) as $namespaceName)
 			$namespace .= "{$namespaceName}\\";
 
-		return strtolower($namespace) . $class . '.php';
+		return strtolower($namespace) . "{$class}.php";
 	}
 
 	/**
 	 * Gets an external class file name.
 	 *
-	 * @param $className
-	 * @return null|string
+	 * @param string $className
+	 * @return string
 	 */
-	protected function getExternalFileName($className)
+	protected function getExternalFileName(\string $className): \string
 	{
 		if (isset($this->_externalClasses[$className]))
 			return $this->_externalClasses[$className];
@@ -151,17 +156,17 @@ class Autoloader extends nComponent
 			}
 		}
 
-		return null;
+		return '';
 	}
 
 	/**
 	 * Gets a package class file name. This method will be used for app (that's a package too) classes or any other
 	 * packages.
 	 *
-	 * @param $className
-	 * @return mixed
+	 * @param string $className
+	 * @return string
 	 */
-	protected function getPackageFileName($className)
+	protected function getPackageFileName(\string $className): \string
 	{
 		$tmp = explode('\\', $className);
 		$class = array_pop($tmp);
@@ -170,6 +175,6 @@ class Autoloader extends nComponent
 		foreach (array_values($tmp) as $namespaceName)
 			$namespace .= "{$namespaceName}\\";
 
-		return strtolower($namespace) . $class . '.php';
+		return strtolower($namespace) . "{$class}.php";
 	}
 }

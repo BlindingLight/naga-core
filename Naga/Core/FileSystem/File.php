@@ -46,6 +46,16 @@ class File extends nComponent
 	}
 
 	/**
+	 * Gets the MD5 checksum of file.
+	 *
+	 * @return string
+	 */
+	public function checksum(): \string
+	{
+		return md5_file($this->realPath());
+	}
+
+	/**
 	 * Returns the original path specified in constructor call.
 	 *
 	 * @return mixed
@@ -71,7 +81,7 @@ class File extends nComponent
 	 * @return string
 	 * @throws \Naga\Core\Exception\FileNotFoundException
 	 */
-	public function contents()
+	public function contents(): \string
 	{
 		return $this->fileSystem()->get($this->_realPath);
 	}

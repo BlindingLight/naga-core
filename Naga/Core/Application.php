@@ -6,8 +6,6 @@ namespace Naga\Core;
 
 use Naga\Core\Action\Action;
 use Naga\Core\Auth\Auth;
-use Naga\Core\Database\Connection\CacheableDatabaseConnection;
-use Naga\Core\Database\Connection\iDatabaseConnection;
 use \Naga\Core\Exception;
 
 /**
@@ -126,10 +124,11 @@ abstract class Application extends nComponent
 	 * Gets a component. You may add methods to access your components for auto-completion in IDEs.
 	 *
 	 * @param string $name
-	 * @return nComponent
-	 * @throws Exception\Component\NotFoundException
+	 * @param array $args
+	 * @return \Naga\Core\nComponent
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public function __call(\string $name): nComponent
+	public function __call(\string $name, array $args): nComponent
 	{
 		return $this->component($name);
 	}
@@ -138,11 +137,12 @@ abstract class Application extends nComponent
 	 * Gets a component statically. You may add methods to access your components for auto-completion in IDEs.
 	 *
 	 * @param string $name
-	 * @return mixed|\Naga\Core\nComponent
-	 * @throws \RuntimeException
+	 * @param array $args
+	 * @return \Naga\Core\nComponent
+	 * @throws \Exception
 	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function __callStatic(\string $name)
+	public static function __callStatic(\string $name, array $args)
 	{
 		if (self::instance())
 			return self::instance()->component($name);
@@ -165,123 +165,88 @@ abstract class Application extends nComponent
 	 * Gets an iDatabaseConnection instance. If $connectionName is null, gets the DatabaseManager instance.
 	 *
 	 * @param string|null $connectionName
-	 * @return \Naga\Core\Database\Connection\iDatabaseConnection|\Naga\Core\Database\Connection\CacheableDatabaseConnection|\Naga\Core\Database\DatabaseManager
+	 * @return \Naga\Core\Database\Connection\iDatabaseConnection|\Naga\Core\Database\Connection\CacheableDatabaseConnection
 	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function database($connectionName = 'default')
+	public static function database($connectionName = 'default'): \Naga\Core\Database\Connection\iDatabaseConnection
 	{
-		if ($connectionName)
-			return self::instance()->component('database')->get($connectionName);
+		return self::databaseManager()->get($connectionName);
+	}
 
-		return self::instance()->component('database');
+	/**
+	 * @return \Naga\Core\Database\DatabaseManager
+	 * @throws \Exception
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
+	 */
+	public static function databaseManager(): \Naga\Core\Database\DatabaseManager
+	{
+		return self::instance()->component('databaseManager');
 	}
 
 	/**
 	 * Gets the app's Request instance.
 	 *
 	 * @return \Naga\Core\Request\Request
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function request()
+	public static function request(): \Naga\Core\Request\Request
 	{
-		try
-		{
-			return self::instance()->component('request');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Request instance.");
-		}
+		return self::instance()->component('request');
 	}
 
 	/**
 	 * Gets the app's Input instance.
 	 *
 	 * @return \Naga\Core\Request\Input
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function input()
+	public static function input(): \Naga\Core\Request\Input
 	{
-		try
-		{
-			return self::instance()->component('input');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Input instance.");
-		}
+		return self::instance()->component('input');
 	}
 
 	/**
 	 * Gets the app's Cookie instance.
 	 *
 	 * @return \Naga\Core\Cookie\Cookie
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function cookie()
+	public static function cookie(): \Naga\Core\Cookie\Cookie
 	{
-		try
-		{
-			return self::instance()->component('cookie');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Cookie instance.");
-		}
+		return self::instance()->component('cookie');
 	}
 
 	/**
 	 * Gets the app's SecureCookie instance.
 	 *
 	 * @return \Naga\Core\Cookie\SecureCookie
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function secureCookie()
+	public static function secureCookie(): \Naga\Core\Cookie\SecureCookie
 	{
-		try
-		{
-			return self::instance()->component('securecookie');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get SecureCookie instance.");
-		}
+		return self::instance()->component('securecookie');
 	}
 
 	/**
 	 * Gets the app's Router instance.
 	 *
 	 * @return \Naga\Core\Routing\Router
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function router()
+	public static function router(): \Naga\Core\Routing\Router
 	{
-		try
-		{
-			return self::instance()->component('router');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Router instance.");
-		}
+		return self::instance()->component('router');
 	}
 
 	/**
 	 * Gets the app's SessionManager instance.
 	 *
 	 * @return \Naga\Core\Session\SessionManager
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function session()
+	public static function session(): \Naga\Core\Session\SessionManager
 	{
-		try
-		{
-			return self::instance()->component('session');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get SessionManager instance.");
-		}
+		return self::instance()->component('session');
 	}
 
 	/**
@@ -290,16 +255,9 @@ abstract class Application extends nComponent
 	 * @return \Naga\Core\FileSystem\iFileSystem
 	 * @throws \RuntimeException
 	 */
-	public static function fileSystem()
+	public static function fileSystem(): \Naga\Core\FileSystem\iFileSystem
 	{
-		try
-		{
-			return self::instance()->component('fileSystem');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get iFileSystem instance.");
-		}
+		return self::instance()->component('fileSystem');
 	}
 
 	/**
@@ -309,146 +267,90 @@ abstract class Application extends nComponent
 	 *
 	 * @param string $configName if you want to get a ConfigBag or property directly, specify it's name here
 	 * @return \Naga\Core\Config\Config|\Naga\Core\Config\ConfigBag|mixed
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function config($configName = null)
+	public static function config(\string $configName = '')
 	{
-		try
-		{
-			$config = self::instance()->component('config');
+		$config = self::instance()->component('config');
 
-			return $configName === null ? $config : $config($configName);
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Config instance.");
-		}
+		return $configName == '' ? $config : $config($configName);
 	}
 
 	/**
 	 * Gets the app's CacheManager instance.
 	 *
 	 * @return \Naga\Core\Cache\CacheManager
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function cache()
+	public static function cache(): \Naga\Core\Cache\CacheManager
 	{
-		try
-		{
-			return self::instance()->component('cache');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get CacheManager instance.");
-		}
+		return self::instance()->component('cache');
 	}
 
 	/**
 	 * Gets the app's Auth instance.
 	 *
 	 * @return \Naga\Core\Auth\Auth
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function auth()
+	public static function auth(): \Naga\Core\Auth\Auth
 	{
-		try
-		{
-			return self::instance()->component('auth');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Auth instance.");
-		}
+		return self::instance()->component('auth');
 	}
 
 	/**
 	 * Gets the app's UrlGenerator instance.
 	 *
 	 * @return \Naga\Core\Routing\UrlGenerator
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function urlGenerator()
+	public static function urlGenerator(): \Naga\Core\Routing\UrlGenerator
 	{
-		try
-		{
-			return self::instance()->component('urlgenerator');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get UrlGenerator instance.");
-		}
+		return self::instance()->component('urlgenerator');
 	}
 
 	/**
 	 * Gets the app's Localization instance.
 	 *
 	 * @return \Naga\Core\Localization\Localization
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function localization()
+	public static function localization(): \Naga\Core\Localization\Localization
 	{
-		try
-		{
-			return self::instance()->component('localization');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Localization instance.");
-		}
+		return self::instance()->component('localization');
 	}
 
 	/**
 	 * Gets the app's Email instance.
 	 *
 	 * @return \Naga\Core\Email\Email
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function email()
+	public static function email(): \Naga\Core\Email\Email
 	{
-		try
-		{
-			return self::instance()->component('email');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Email instance.");
-		}
+		return self::instance()->component('email');
 	}
 
 	/**
 	 * Gets the app's Events instance.
 	 *
 	 * @return \Naga\Core\Event\Events
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function events()
+	public static function events(): \Naga\Core\Event\Events
 	{
-		try
-		{
-			return self::instance()->component('events');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Events instance.");
-		}
+		return self::instance()->component('events');
 	}
 
 	/**
 	 * Gets the app's Hasher instance.
 	 *
 	 * @return \Naga\Core\Hashing\Hasher
-	 * @throws \RuntimeException
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	public static function hasher()
+	public static function hasher(): \Naga\Core\Hashing\Hasher
 	{
-		try
-		{
-			return self::instance()->component('hasher');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get Hasher instance.");
-		}
+		return self::instance()->component('hasher');
 	}
 
 	/**
@@ -457,16 +359,9 @@ abstract class Application extends nComponent
 	 * @return \Naga\Core\Database\iQueryBuilder
 	 * @throws \RuntimeException
 	 */
-	public static function queryBuilder()
+	public static function queryBuilder(): \Naga\Core\Database\iQueryBuilder
 	{
-		try
-		{
-			return self::instance()->component('queryBuilder');
-		}
-		catch (Exception\Component\NotFoundException $e)
-		{
-			throw new \RuntimeException("Can't get iQueryBuilder instance.");
-		}
+		return self::instance()->component('queryBuilder');
 	}
 
 	/**
@@ -476,7 +371,7 @@ abstract class Application extends nComponent
 	 * @param int $statusCode http status code
 	 * @deprecated
 	 */
-	public function redirect($url = '/', $statusCode = 302)
+	public function redirect(\string $url = '/', \int $statusCode = 302)
 	{
 		static::redirectTo($url, $statusCode, $this->instanceName());
 	}
@@ -488,10 +383,10 @@ abstract class Application extends nComponent
 	 *
 	 * @param string $url
 	 * @param int    $statusCode
-	 * @param null   $appInstance
+	 * @param string   $appInstance
 	 * @throws \Exception
 	 */
-	public static function redirectTo($url = '/', $statusCode = 302, $appInstance = null)
+	public static function redirectTo(\string $url = '/', \int $statusCode = 302, \string $appInstance = '')
 	{
 		$instance = !is_null($appInstance) ? self::instance($appInstance) : self::instance();
 		$instance->finish();
@@ -507,7 +402,7 @@ abstract class Application extends nComponent
 			$url = $instance->urlGenerator()->route(str_replace('@', '', $tmp[0]), $params);
 		}
 
-		http_response_code($statusCode);
+		static::setResponseStatusCode($statusCode);
 		header("Location: {$url}");
 
 		exit;
@@ -518,7 +413,7 @@ abstract class Application extends nComponent
 	 *
 	 * @param int $statusCode
 	 */
-	public static function setResponseStatusCode($statusCode)
+	public static function setResponseStatusCode(\int $statusCode)
 	{
 		http_response_code($statusCode);
 	}
@@ -541,13 +436,13 @@ abstract class Application extends nComponent
 		if ($this->auth()->isLoggedIn() && $this->input()->exists('logout'))
 		{
 			$this->auth()->logout();
-			self::redirectTo();
+			static::redirectTo();
 		}
 
-		$defaultRoute = self::auth()->isLoggedIn()
-						? self::config()->application->get('defaultRouteIfLoggedIn')
-						: self::config()->application->get('defaultRoute');
-		self::router()->setDefaultRoute($defaultRoute);
+		$defaultRoute = static::auth()->isLoggedIn()
+						? static::config()->application->get('defaultRouteIfLoggedIn')
+						: static::config()->application->get('defaultRoute');
+		static::router()->setDefaultRoute($defaultRoute);
 		$controllerResult = self::router()->routeUri();
 		if ($controllerResult instanceof Action)
 			$controllerResult->execute();

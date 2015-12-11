@@ -231,43 +231,51 @@ class FileSystem extends nComponent implements iFileSystem
 	}
 
 	/**
-	 * Get an array of all files in a directory.
+	 * Get an array of all files in a directory matching the pattern specified.
 	 *
 	 * @param string $directory
-	 * @return array
+	 * @param string $pattern file name pattern to match
+	 * @return File[]
 	 */
-	public function files($directory)
+	public function files(\string $directory, \string $pattern = '*'): array
 	{
-		$dir = $this->glob($directory . '/*');
+		$dir = $this->glob("{$directory}/{$pattern}");
 
 		if ($dir === false)
 			return array();
 
 		$t = &$this;
-		return array_filter($dir, function($file) use(&$t)
+		$files = array_filter($dir, function($file) use(&$t)
 		{
 			return $t->isFile($file);
 		});
+
+		$finalized = [];
+		foreach ($files as $file)
+			$finalized[] = new File($file, $this);
+
+		return $finalized;
 	}
 
 	/**
-	 * Get all of the files from the given directory (recursive).
+	 * Get all of the files from the given directory (recursive) matching the specified pattern.
 	 *
 	 * @param string $directory
-	 * @return array
+	 * @param string $pattern file name pattern to match
+	 * @return File[]
 	 */
-	public function allFiles($directory)
+	public function allFiles(\string $directory, \string $pattern = '*')
 	{
 		if (!$this->isDirectory($directory))
 			return array();
 
-		$files = $this->files($directory);
+		$files = $this->files($directory, $pattern);
 		$tmp = $this->directories($directory);
 
 		foreach ($tmp as $entry)
-			$files = array_merge($files, $this->allFiles($entry));
+			$files = array_merge($files, $this->allFiles($entry, $pattern));
 
-		return $files;
+		return $files;;
 	}
 
 	/**

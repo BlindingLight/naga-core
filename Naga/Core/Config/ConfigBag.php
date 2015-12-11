@@ -22,6 +22,8 @@ class ConfigBag extends Map
 	{
 		if ($fileSystem)
 			$this->setFileSystem($fileSystem);
+
+		parent::__construct();
 	}
 
 	/**
@@ -30,7 +32,7 @@ class ConfigBag extends Map
 	 * @param string $name
 	 * @return mixed|null
 	 */
-	public function __get($name)
+	public function __get(\string $name)
 	{
 		return $this->get($name);
 	}
@@ -41,7 +43,7 @@ class ConfigBag extends Map
 	 * @param string $name
 	 * @return string
 	 */
-	public function getString($name)
+	public function getString(\string $name): \string
 	{
 		return (string)$this->get($name);
 	}
@@ -52,7 +54,7 @@ class ConfigBag extends Map
 	 * @param string $name
 	 * @return int
 	 */
-	public function getInt($name)
+	public function getInt(\string $name): \int
 	{
 		return (int)$this->get($name);
 	}
@@ -63,7 +65,7 @@ class ConfigBag extends Map
 	 * @param string $name
 	 * @return float
 	 */
-	public function getFloat($name)
+	public function getFloat(\string $name): \float
 	{
 		return (float)$this->get($name);
 	}
@@ -72,9 +74,9 @@ class ConfigBag extends Map
 	 * Gets a config property as double.
 	 *
 	 * @param string $name
-	 * @return float
+	 * @return double
 	 */
-	public function getDouble($name)
+	public function getDouble(\string $name): \double
 	{
 		return (double)$this->get($name);
 	}
@@ -85,7 +87,7 @@ class ConfigBag extends Map
 	 * @param string $name
 	 * @return bool
 	 */
-	public function getBool($name)
+	public function getBool(\string $name): \bool
 	{
 		if ($name == 'true')
 			return true;
@@ -101,7 +103,7 @@ class ConfigBag extends Map
 	 * @param string $name
 	 * @return array
 	 */
-	public function getArray($name)
+	public function getArray(\string $name): array
 	{
 		return (array)$this->get($name);
 	}
@@ -112,7 +114,7 @@ class ConfigBag extends Map
 	 * @param string $name
 	 * @return object
 	 */
-	public function getObject($name)
+	public function getObject(\string $name): \object
 	{
 		return (object)$this->get($name);
 	}

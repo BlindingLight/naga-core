@@ -218,7 +218,7 @@ class CommandLine extends nComponent
 	{
 		$text = 'Available commands:';
 		foreach ($this->_commands as $command)
-			$text .= "\n\t" . $command->name() . "\t\t" . $command->description();
+			$text .= "\n\t" . $command->name() . "\t\t" . $command->description() . ' (aliases: ' . implode(', ', $command->aliases()) . ')';
 
 		$this->info($text);
 	}

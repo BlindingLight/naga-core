@@ -2,7 +2,9 @@
 
 namespace Naga\Core\FileSystem;
 
-interface iFileSystem
+use Naga\Core\iComponent;
+
+interface iFileSystem extends iComponent
 {
 	/**
 	 * Determine if a file exists.
@@ -166,17 +168,19 @@ interface iFileSystem
 	 * Get an array of all files in a directory.
 	 *
 	 * @param string $directory
+	 * @param string $pattern
 	 * @return array
 	 */
-	function files($directory);
+	function files(\string $directory, \string $pattern = '*');
 
 	/**
 	 * Get all of the files from the given directory (recursive).
 	 *
 	 * @param string $directory
+	 * @param string $pattern
 	 * @return array
 	 */
-	function allFiles($directory);
+	function allFiles(\string $directory, \string $pattern = '*');
 
 	/**
 	 * Get all of the directories within a given directory.

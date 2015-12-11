@@ -32,9 +32,10 @@ class Config extends nComponent
 	 * @param ConfigBag $config
 	 * @return $this
 	 */
-	public function add($name, ConfigBag $config)
+	public function add(\string $name, ConfigBag $config): self
 	{
 		$this->registerComponent($name, $config);
+
 		return $this;
 	}
 
@@ -46,10 +47,10 @@ class Config extends nComponent
 	 * Example: $app->config('application.templates.root')
 	 *
 	 * @param string $name
-	 * @return \Naga\Core\Config\ConfigBag
+	 * @return \Naga\Core\Config\ConfigBag|string
 	 * @throws \Exception
 	 */
-	public function __invoke($name)
+	public function __invoke(\string $name)
 	{
 		if (!$name)
 			$name = 'application';
@@ -75,7 +76,7 @@ class Config extends nComponent
 	 * @param string $name
 	 * @return \Naga\Core\Config\ConfigBag
 	 */
-	public function __get($name)
+	public function __get(\string $name): \Naga\Core\Config\ConfigBag
 	{
 		return $this->getConfigBag($name);
 	}
@@ -87,12 +88,12 @@ class Config extends nComponent
 	 * @param string $filePath
 	 * @return \Naga\Core\Config\ConfigBag
 	 */
-	public function getFile($filePath)
+	public function getFile(\string $filePath): \Naga\Core\Config\ConfigBag
 	{
 		$bag = new ConfigBag($this->fileSystem());
 		$extension = $this->fileSystem()->extension($filePath);
 		if ($extension == 'json')
-			$bag->mergeWith((array)json_decode($this->fileSystem()->get($filePath)));
+			$bag->getJsonFile($filePath);
 		else
 			$bag->getFile($filePath);
 
@@ -105,8 +106,9 @@ class Config extends nComponent
 		}
 
 		$configName = str_replace('.' . $extension, '', implode('.', $tempNames));
+		$this->add($configName, $bag);
 
-		return $this->add($configName, $bag);
+		return $bag;
 	}
 
 	/**
@@ -115,17 +117,14 @@ class Config extends nComponent
 	 * with a dot, eg: translations.en-en
 	 *
 	 * @param string $directory
-	 * @param string|null $extension
-	 * @return \Naga\Core\Config\ConfigBag
+	 * @param string $extension
+	 * @return $this
 	 */
-	public function getFilesInDirectory($directory, $extension = null)
+	public function getFilesInDirectory(\string $directory, \string $extension = ''): self
 	{
-		$files = $this->fileSystem()->allFiles($directory);
+		$files = $this->fileSystem()->allFiles($directory, "*.{$extension}");
 		foreach ($files as $file)
-		{
-			if ($this->fileSystem()->extension($file) == $extension)
-				$this->getFile($file);
-		}
+			$this->getFile($file);
 
 		return $this;
 	}
@@ -144,8 +143,9 @@ class Config extends nComponent
 	 * Gets the iFileSystem instance.
 	 *
 	 * @return \Naga\Core\FileSystem\iFileSystem
+	 * @throws \Naga\Core\Exception\Component\NotFoundException
 	 */
-	protected function fileSystem()
+	protected function fileSystem(): \Naga\Core\FileSystem\iFileSystem
 	{
 		return $this->component('fileSystem');
 	}
@@ -157,7 +157,7 @@ class Config extends nComponent
 	 * @return \Naga\Core\Config\ConfigBag
 	 * @throws NotExistsException
 	 */
-	public function getConfigBag($name)
+	public function getConfigBag(\string $name): \Naga\Core\Config\ConfigBag
 	{
 		try
 		{
@@ -175,7 +175,7 @@ class Config extends nComponent
 	 * @param string $name
 	 * @return bool
 	 */
-	public function exists($name)
+	public function exists(\string $name): \bool
 	{
 		return $this->componentRegistered($name);
 	}
